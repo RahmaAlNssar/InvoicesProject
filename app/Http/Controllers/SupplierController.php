@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\supplier;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 class SupplierController extends Controller
 {
     /**
@@ -36,6 +36,18 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        $validator=$request->validate([
+            'name'=>'required',
+            'address'=>'required',
+            'phone_number'=>'required'
+        ],[
+            'name.required'=>'يرجى ادخال اسم المورد',
+            'address.required'=>'يرجى ادخال عنوان المورد',
+            'phone_number.required'=>'يرجى دخال رقم الهاتف'
+        ]);
+        if($validator->fails()){
+            return $validator->errors();
+        }
         supplier::create([
             'name'=>$request->name,
             'address'=>$request->address,

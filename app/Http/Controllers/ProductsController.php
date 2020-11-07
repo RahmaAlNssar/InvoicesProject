@@ -24,19 +24,13 @@ class ProductsController extends Controller
         $products=products::all();
         $sections=sections::all();
        
-        $products = products::with('supplier')->where('product_name', 'LIKE', '%' . $request->search . '%')
-        ->orWhere('supplier_id','LIKE', '%' . $request->search . '%')
+        $products = products::where('product_name', 'LIKE', '%' . $request->search . '%')
+        ->orWhereHas('supplier',function($q) use($request){
+            $q->where('name','LIKE','%' . $request->search . '%');
+        })
         ->get();
 
-        
-            
-             
-            
-              
-          
-       
-      
-       
+     
         return view('products.products',compact('sections','products','suppliers','categories'));
     }
 
@@ -58,14 +52,23 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        // $validator=$request->validate([
-        //     'product_name'=>'required',
-        //     'section_id'=>'required',
-        //     'description'=>'required'
-        // ],[
-        //     'product_name.required'=>'يرجى ادخال اسم المنتج',
-        //     'product_name.required'=>'يرجى ادخال التوصيف',
-        //     'section_id.required'=>'يرجى ادخال القسم']);
+        $validator=$request->validate([
+            'product_name'=>'required',
+            'section_id'=>'required',
+            'description'=>'required',
+            'price'=>'required'
+        ],[
+            'product_name.required'=>'يرجى ادخال اسم المنتج',
+            'product_name.required'=>'يرجى ادخال التوصيف',
+            'section_id.required'=>'يرجى ادخال القسم',
+            'price'=>'يرجى ادخال سعر المنتج',
+           'description.required'=>'يرجى ادخال الوصف'
+
+            ]);
+
+            if($validator->fails()){
+                return $validator->errors();
+            }
 
         products::create([
                 'product_name'=>$request->product_name,

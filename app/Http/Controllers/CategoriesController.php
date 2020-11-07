@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\categories;
 use App\products;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 class CategoriesController extends Controller
 {
     /**
@@ -38,6 +38,14 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
+        $validator=$request->validate([
+            'name'=>'required'
+        ],[
+            'name.required'=>'يرجى ادخال اسم الصنف'
+        ]);
+        if($validator->fails()){
+            return $validator->errors();
+        }
         categories::create([
             'name'=>$request->name,
             'descrption'=>$request->descrption,
